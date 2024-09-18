@@ -7,9 +7,19 @@
 <br>
 <br>
 
-#### **PKM AWARDING 2024 - Weapmath**
 
+#### **PKM AWARDING 2024 - Weapmath**
+si
 ![image](https://github.com/user-attachments/assets/006887a3-2737-4736-9be5-b4a3f09d5f86)
+
+
+## Tim Pengembang
+
+- **Muhammad Rizky Daffa Fahrezzy**
+- **Cahyani Dini Setiowati**
+- **Nisrina Afifah Triasputri**
+- **Lathifah Sahda**
+- **Alvin Zanua Putra**
 
 ## Deskripsi Proyek
 
@@ -57,20 +67,16 @@ Untuk memainkan WeapMath, Anda bisa mengunduhnya melalui Google Play Store.
 [Kunjungi Website](https://weapmath.vercel.app/)
 
 
-## Tim Pengembang
+<div align="center">
+   
+*Proyek ini dikembangkan oleh mahasiswa **Institut Teknologi Sepuluh Nopember** 
+**sebagai bagian dari Program Kreativitas Mahasiswa (PKM) 2024.**
 
-- **Muhammad Rizky Daffa Fahrezzy**
-- **Cahyani Dini Setiowati**
-- **Nisrina Afifah Triasputri**
-- **Lathifah Sahda**
-- **Alvin Zanua Putra**
-
-  <div align="center">
-*Proyek ini dikembangkan oleh mahasiswa **Institut Teknologi Sepuluh Nopember** sebagai bagian dari Program Kreativitas Mahasiswa (PKM) 2024.*
 </div>
 
 <br>
 <br>
+
 <div align="center">
 
 ## Lisensi
