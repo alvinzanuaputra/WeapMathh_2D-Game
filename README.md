@@ -64,8 +64,11 @@ Untuk memainkan WeapMath, Anda bisa mengunduhnya melalui Google Play Store.
 - **Nisrina Afifah Triasputri**
 - **Lathifah Sahda**
 - **Alvin Zanua Putra**
-  
-Proyek ini dikembangkan oleh mahasiswa **Institut Teknologi Sepuluh Nopember** sebagai bagian dari Program Kreativitas Mahasiswa (PKM) 2024.
+
+  <div align="center">
+*Proyek ini dikembangkan oleh mahasiswa **Institut Teknologi Sepuluh Nopember** sebagai bagian dari Program Kreativitas Mahasiswa (PKM) 2024.*
+</div>
+
 <br>
 <br>
 <div align="center">
