@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using Unity.Services.Authentication;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -18,22 +20,36 @@ public class GameManager : NetworkBehaviour
     [SerializeField] TextMeshProUGUI joiningText;
     [SerializeField] GameObject winScreen;
     [SerializeField] TextMeshProUGUI winnerText;
-    [SerializeField] GameObject lobM;
     [SerializeField] Animator anim;
+    [SerializeField] AudioClip battleMsc, gameOver;
+    [SerializeField] AudioSource src;
+    [SerializeField] TextMeshProUGUI rewardText;
+    
+    [SerializeField] Sprite[] qImages;
+    [SerializeField] string[] answers0, answers1, answers2;
+    [SerializeField] string[,] answers = new string[3,4];
+    [SerializeField] int[] cAnswer;
 
+    bool dead = false;
     public PlayerController currentPlayer;
     public int pIndex;
     float timer;
+    int qIndex;
 
-    // Start is called before the first frame update
     void Awake()
     {
         currentPlayer = player1;
         pIndex = 1;
         timer = 0;
+        qIndex = UnityEngine.Random.Range(0,3);
     }
 
-    // Update is called once per frame
+    void Start(){
+        // questionSetChange(7);
+        // changeQ();
+        audioEnabler();
+    }
+
     void Update()
     {
         timer += Time.deltaTime;
@@ -68,11 +84,11 @@ public class GameManager : NetworkBehaviour
         }
 
         // Heal
-        if (currentPlayer.playerMana >= 40 || timer >= 0.5f)
+        if (currentPlayer.playerMana >= 40 && timer >= 2f)
         {
             ui.enableButton(4);
         }
-        else if (currentPlayer.playerMana < 40 || timer >= 0.5f)
+        else if (currentPlayer.playerMana < 40 || timer < 2f)
         {
             ui.disableButton(4);
         }
@@ -82,19 +98,62 @@ public class GameManager : NetworkBehaviour
         {
             // Debug.Log(NetworkManager.ConnectedClients.Count);
             // anim.SetTrigger("C3Cast");
+            // Debug.Log(player1.userName.text);
         }
 
-        if (player1.playerHealth <= 0)
+        if (player1.playerHealth <= 0 && !dead)
         {
+            dead = true;
             player1.GetComponent<SpriteRenderer>().color = Color.black;
             ui.offOptions();
+            src.clip = gameOver;
+            src.loop = false;
+            src.Play();
             StartCoroutine(WinDow(1));
         }
-        if (player2.playerHealth <= 0)
+        if (player2.playerHealth <= 0 && !dead)
         {
+            dead = true;
             player2.GetComponent<SpriteRenderer>().color = Color.black;
             ui.offOptions();
+            src.clip = gameOver;
+            src.loop = false;
+            src.Play();
             StartCoroutine(WinDow(2));
+        }
+    }
+
+    private void audioEnabler(){
+        int mscEnabled = PlayerPrefs.GetInt("msc", 1);
+        int sfxEnabled = PlayerPrefs.GetInt("sfx", 1);
+        if (mscEnabled == 0){
+            src.enabled = false;
+        }
+        else if (mscEnabled == 1){
+            src.enabled = true;
+        }
+        player1.audioSetter(sfxEnabled);
+        player2.audioSetter(sfxEnabled);
+    }
+
+    public void correctAnswer(){
+        increaseMana();
+    }
+    public void wrongAnswer(){
+
+    }
+
+    public void hurtPlayer(){
+        hurtPlayerRpc(pIndex);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    public void hurtPlayerRpc(int p){
+        if (p == 1){
+            player1.hitAmount += 1;
+        }
+        else if (p == 2) {
+            player2.hitAmount += 1;
         }
     }
 
@@ -140,19 +199,31 @@ public class GameManager : NetworkBehaviour
         Destroy(NetworkManager.gameObject);
         // NetworkManager networkManager = GameObject.FindObjectOfType<NetworkManager>();
         // Destroy(networkManager.gameObject);
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     IEnumerator WinDow(int p)
     {
         if (p == 1)
         {
-            winnerText.text = "P2 Wins";
+            winnerText.text = player2.userName.text + " Wins";
         }
         else if (p == 2)
         {
-            winnerText.text = "P1 Wins";
+            winnerText.text = player1.userName.text + " Wins";
         }
+        if (p == pIndex){
+            int coinOwned = PlayerPrefs.GetInt("coinOwned", 0);
+            coinOwned += 10;
+            PlayerPrefs.SetInt("coinOwned", coinOwned);
+            rewardText.text = "+ 10";
+        }
+        else if (p != pIndex){
+            int coinOwned = PlayerPrefs.GetInt("coinOwned", 0);
+            coinOwned += 50;
+            PlayerPrefs.SetInt("coinOwned", coinOwned);
+            rewardText.text = "+ 50";
+        } 
         yield return new WaitForSeconds(1f);
         winScreen.SetActive(true);
     }
@@ -172,6 +243,8 @@ public class GameManager : NetworkBehaviour
     public void startMatchRpc()
     {
         waitingScreen.SetActive(false);
+        src.clip = battleMsc;
+        src.Play();
         changeUsername();
     }
 
@@ -181,6 +254,8 @@ public class GameManager : NetworkBehaviour
         {
             changeUsername();
             waitingScreen.SetActive(false);
+            src.clip = battleMsc;
+            src.Play();
             startMatchRpc();
         }
     }
@@ -208,31 +283,22 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public void hurtEnemy()
-    {
-        /*if(player.playerMana >= 20)
-        {
-            enemyHealth -= 20;
-            player.decreaseMana();
-        }*/
-    }
-
     [Rpc(SendTo.NotMe)]
     public void increaseManaRpc(int p)
     {
         if (p == 1)
         {
-            player1.changeMana(30);
+            player1.changeMana(+30);
         }
         else if (p == 2)
         {
-            player2.changeMana(30);
+            player2.changeMana(+30);
         }
     }
 
     public void increaseMana()
     {
-        currentPlayer.changeMana(30);
+        currentPlayer.changeMana(+30);
         increaseManaRpc(pIndex);
     }
 
@@ -297,6 +363,7 @@ public class GameManager : NetworkBehaviour
     {
         //anim.SetTrigger("C3Cast");
         castAnimRpc(pIndex);
+        castFBsfxRpc(pIndex);
         timer = 0;
         StartCoroutine(FireballDelay());
         //NetworkManager.Instantiate(NetworkPrefab);
@@ -310,9 +377,31 @@ public class GameManager : NetworkBehaviour
         //     currentPlayer.summonFireballLeft();
         // }
     }
+
+    [Rpc(SendTo.Everyone)]
+    public void castFBsfxRpc(int p){
+        if (p == 1){
+            player1.playFireballSfx();
+        }
+        else if (p == 2){
+            player2.playFireballSfx();
+        }
+    }
+
+    [Rpc(SendTo.Everyone)]
+    public void castLGsfxRpc(int p){
+        if (p == 1){
+            player1.playLightningSfx();
+        }
+        else if (p == 2){
+            player2.playLightningSfx();
+        }
+    }
+
     public void summonLightning()
     {
         lightningRpc(pIndex);
+        // castLGsfxRpc(pIndex);
         currentPlayer.changeMana(-60);
         timer = 0;
         // GameObject lg = null;
@@ -330,7 +419,7 @@ public class GameManager : NetworkBehaviour
     }
 
     IEnumerator FireballDelay(){
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(0.75f);
         fireballRpc(pIndex);
         if (currentPlayer == player1)
         {
@@ -345,24 +434,26 @@ public class GameManager : NetworkBehaviour
     IEnumerator delayThing(int p)
     {
         GameObject lg = null;
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(0.75f);
         if (p == 1)
         {
+            player1.playLightningSfx();
             lg = Instantiate(lightning, player2.transform.position, Quaternion.identity);
         }
         else if (p == 2)
         {
+            player2.playLightningSfx();
             lg = Instantiate(lightning, player1.transform.position, Quaternion.identity);
         }
         yield return new WaitForSeconds(0.5f);
         Destroy(lg);
         if (p == 1)
         {
-            player2.playerHealth -= 40;
+            player2.changeHealth(-40);
         }
         else if (p == 2)
         {
-            player1.playerHealth -= 40;
+            player1.changeHealth(-40);
         }
     }
 
@@ -374,6 +465,7 @@ public class GameManager : NetworkBehaviour
     }
     public void heal()
     {
+        timer = 0f;
         currentPlayer.heal();
         healRpc(pIndex);
     }

@@ -25,10 +25,15 @@ public class SimpleMatchmaking : MonoBehaviour
     private Lobby _connectedLobby;
     private QueryResponse _lobbies;
     private UnityTransport _transport;
-    private const string JoinCodeKey = "j";
+    private string JoinCodeKey = "j";
     private string _playerId;
 
     private void Awake() => _transport = FindObjectOfType<UnityTransport>();
+
+    public void gradeSelect(int grade){
+        JoinCodeKey = grade.ToString();
+        CreateOrJoinLobby();
+    }
 
     public async void CreateOrJoinLobby()
     {

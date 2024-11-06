@@ -8,11 +8,13 @@ public class UsernameChange : MonoBehaviour
 {
     [SerializeField] TMP_InputField usernameInput;
     [SerializeField] TextMeshProUGUI username;
+    [SerializeField] TextMeshProUGUI usernameProfile;
 
     private void Start() {
         string savedUsername = PlayerPrefs.GetString("username");
         if (savedUsername != "") {
             username.text = savedUsername;
+            usernameProfile.text = savedUsername;
         }
     }
 
@@ -20,6 +22,7 @@ public class UsernameChange : MonoBehaviour
         if (usernameInput != null) {
             PlayerPrefs.SetString("username", usernameInput.text);
             username.text = usernameInput.text;
+            usernameProfile.text = usernameInput.text;
         }
     }
 }

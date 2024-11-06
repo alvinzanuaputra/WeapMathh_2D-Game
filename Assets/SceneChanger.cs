@@ -6,8 +6,11 @@ using UnityEngine.SceneManagement;
 public class SceneChanger : MonoBehaviour
 {
 
-    public void nextScene()
-    {
-        SceneManager.LoadScene(1);
+    public void mp_scene(){
+        SceneManager.LoadScene(2);
+    }
+
+    public void sp_scene(){
+        SceneManager.LoadScene(3);
     }
 }
